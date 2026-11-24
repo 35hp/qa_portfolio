@@ -1,10 +1,10 @@
 # SQL Query Output
 
 ## [QA_Script-1](./QA_Script-1.sql) Output:
-|InvoiceId|InvoiceDate|CustomerId|CustomerFullName|CustomerPhone|SaleRepFullName|SaleRepPhone|
-|---------|-----------|----------|----------------|-------------|---------------|------------|
-|396|2025-10-08|18|Michelle Brooks|+1 (212) 221-3546|Jane Peacock|+1 (403) 262-3443|
-|397|2025-10-13|27|Patrick Gray|+1 (520) 622-4200|Margaret Park|+1 (403) 263-4423|
+|InvoiceAmt|InvoiceDate|CustomerFullName|CustomerPhone|SaleRepFullName|SaleRepPhone|
+|----------|-----------|----------------|-------------|---------------|------------|
+|8.91|2025-10-08|Michelle Brooks|+1 (212) 221-3546|Jane Peacock|+1 (403) 262-3443|
+|13.86|2025-10-13|Patrick Gray|+1 (520) 622-4200|Margaret Park|+1 (403) 263-4423|
 
 ## [QA_Script-2](./QA_Script-2.sql) Output:
 |Name|NumOfTracks|
