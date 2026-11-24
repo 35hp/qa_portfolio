@@ -1,5 +1,5 @@
 # SQL Query Output
-## QA_Script-1 Output:
+## [QA_Script-1](./QA_Script-1.sql) Output:
 |InvoiceId|InvoiceDate|CustomerId|CustomerFullName|CustomerPhone|SaleRepFullName|SaleRepPhone|
 |---------|-----------|----------|----------------|-------------|---------------|------------|
 |396|2025-10-08|18|Michelle Brooks|+1 (212) 221-3546|Jane Peacock|+1 (403) 262-3443|
