@@ -26,3 +26,24 @@
 |ArtistName|AlbumTitle|NumOfSongs|
 |----------|----------|----------|
 |Lenny Kravitz|Greatest Hits|57|
+
+## [QA_Script-4](./QA_Script-4.sql) Output:
+|ContentType|TotalMB|FileType|
+|-----------|-------|--------|
+|TV Shows|85758.72|MPEG-4 |
+|Music|24971.7|MPEG |
+|90’s Music|11447.41|MPEG |
+|Music|1159.55|AAC |
+|90’s Music|471.19|AAC |
+|Classical|368.78|AAC |
+|Brazilian Music|298.5|MPEG |
+|Heavy Metal Classic|160.18|MPEG |
+|Classical 101 - Deep Cuts|125.86|AAC |
+|Classical 101 - The Basics|121.74|AAC |
+|Classical 101 - Next Steps|121.19|AAC |
+|Grunge|120.79|MPEG |
+|Music|58.29|MPEG-4 |
+|Music Videos|58.29|MPEG-4 |
+|Heavy Metal Classic|39.71|AAC |
+|On-The-Go 1|6.06|MPEG |
+|Grunge|4.04|AAC |
