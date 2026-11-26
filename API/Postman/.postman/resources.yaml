@@ -8,3 +8,15 @@ localResources:
 resourceNameMappings:
   specs:
     - ../postman/specs/portfolio/portfolio.yaml: portfolio
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+cloudResources:
+  collections:
+    ../postman/collections/portfolioQA_FreeToGame_automation: 60424403-eb8c6f99-c343-482a-adc2-e6b30e4acf4f
+    ../postman/collections/portfolioQA_FreeToGame_manual: 60424403-d80fa93a-ed30-4ebf-9586-6431ffcd69c4
+  environments:
+    ../postman/environments/Production.environment.yaml: 60424403-da91ff12-e441-4a6e-a93f-d620b1131e0d
+  specs:
+    ../postman/specs/portfolio/portfolio.yaml: 67454942-af66-4cbd-bec1-6c1e49c53655
+  globals:
+    ../postman/globals/workspace.globals.yaml: 5fc1fe2f-a3c6-48c8-8a59-4c42e19b647e
