@@ -52,7 +52,7 @@
 |AtristName|TotalSold|
 |----------|---------|
 |Iron Maiden|138.6|
-|U2|105.92999999999999|
+|U2|105.93|
 |Metallica|90.09|
 |Led Zeppelin|86.13|
 |Lost|81.59|
