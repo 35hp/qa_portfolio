@@ -1,0 +1,566 @@
+{
+  "info": {
+    "_postman_id": "eb8c6f99-c343-482a-adc2-e6b30e4acf4f",
+    "name": "portfolioQA_FreeToGame_automation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "60424403",
+    "_collection_link": "https://go.postman.co/collection/60424403-eb8c6f99-c343-482a-adc2-e6b30e4acf4f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "SingleParameter",
+      "item": [
+        {
+          "name": "Sort",
+          "item": [
+            {
+              "name": "GET-by_sort_games_alphabetical",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const games = pm.response.json();\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response time is under 3000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(3000);\r\n});\r\npm.test(\"Games are in alphabetical order\", () => {\r\n    const titles = games.map(g => g.title.toLowerCase());\r\n    const expected = [...titles].sort();\r\n    pm.expect(titles).to.eql(expected);\r\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.variables.set(\"sort\", \"alphabetical\")"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BASE}}/games?sort-by={{sort}}",
+                  "host": [
+                    "{{BASE}}"
+                  ],
+                  "path": [
+                    "games"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort-by",
+                      "value": "{{sort}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET-by_sort_games_release-date",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.variables.set(\"sort\", \"release-date\")"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const games = pm.response.json();\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response time is under 3000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(3000);\r\n});\r\npm.test(\"Games are sorted by release date, newest first\", () => {\r\n    const dates = games.map(g => g.release_date);\r\n    const expected = [...dates].sort().reverse();\r\n    pm.expect(dates).to.eql(expected);\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BASE}}/games?sort-by={{sort}}",
+                  "host": [
+                    "{{BASE}}"
+                  ],
+                  "path": [
+                    "games"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort-by",
+                      "value": "{{sort}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "TagsTest",
+          "item": [
+            {
+              "name": "GET-by_tag_filter_single",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Data sourced directly from FreeToGame_Info.json\nconst tags = [\n  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\n  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\n  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\n  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\n  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\n  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\n  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\n];\n\nconst expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\n\nconst baseUrl = pm.environment.get(\"BASE\");\n\n// Validate a single tag's response\nfunction validateTagResponse(tag, body, statusCode, responseTime) {\n  pm.test(`[${tag}] Status code is 200`, () => {\n    pm.expect(statusCode).to.equal(200);\n  });\n\n  pm.test(`[${tag}] Response time is under 3000ms`, () => {\n    pm.expect(responseTime).to.be.below(3000);\n  });\n\n  pm.test(`[${tag}] Response is a non-empty array`, () => {\n    pm.expect(body).to.be.an(\"array\").and.have.length.above(0);\n  });\n\n  pm.test(`[${tag}] Each game has all required keys`, () => {\n    body.forEach((game) => {\n      expectedKeys.forEach(key => {\n        pm.expect(game, `[${tag}] Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n      });\n    });\n  });\n}\n\n// Fire a pm.sendRequest for every tag at most 10 req/s (100 ms apart)\ntags.forEach((tag, index) => {\n  setTimeout(() => {\n    pm.sendRequest(\n      { url: `${baseUrl}/filter?tag=${encodeURIComponent(tag)}`, method: \"GET\" },\n      (err, res) => {\n        if (err) {\n          pm.test(`[${tag}] Request succeeded`, () => { throw new Error(err.message); });\n        } else {\n          validateTagResponse(tag, res.json(), res.code, res.responseTime);\n        }\n      }\n    );\n  }, index * 100); // 100 ms between each request = max 10 req/s\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BASE}}/filter?tag={{tag}}",
+                  "host": [
+                    "{{BASE}}"
+                  ],
+                  "path": [
+                    "filter"
+                  ],
+                  "query": [
+                    {
+                      "key": "tag",
+                      "value": "{{tag}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET-by_tag_filter_multiple",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\nconst tag = pm.variables.get(\"tag\")\nconst baseUrl = pm.environment.get(\"BASE\");\n\n// Validate a single tag's response\nfunction validateTagResponse(tag, body, statusCode, responseTime) {\n  pm.test(`[${tag}] Status code is 200 or 201`, () => {\n    pm.expect(statusCode).to.be.oneOf([200, 201]);\n  });\n\n  pm.test(`[${tag}] Response time is under 3000ms`, () => {\n    pm.expect(responseTime).to.be.below(3000);\n  });\n\n  if (statusCode === 200) {\n      pm.test(`[${tag}] Response is a non-empty array`, () => {\n        pm.expect(body).to.be.an(\"array\").and.have.length.above(0);\n      });\n\n      pm.test(`[${tag}] Each game has all required keys`, () => {\n        body.forEach((game) => {\n          expectedKeys.forEach(key => {\n            pm.expect(game, `[${tag}] Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n          });\n        });\n      });\n  } else {\n      pm.test(`[${tag}] Response indicates no data found`, () => {\n          pm.expect(body).to.have.property(\"status\", 0);\n          pm.expect(body).to.have.property(\"status_message\");\n      });\n  }\n}\n\n// Safely handle the response\ntry {\n    const jsonData = pm.response.json();\n    validateTagResponse(tag, jsonData, pm.response.code, pm.response.responseTime);\n} catch (e) {\n    pm.test(\"Response is valid JSON\", () => {\n        pm.expect(false, \"Response was not valid JSON: \" + e.message).to.be.true;\n    });\n}"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const tags = [\r\n  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\r\n  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\r\n  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\r\n  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\r\n  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\r\n  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\r\n  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\r\n];\r\n\r\nfunction getRandomTags(list, count = 5) {\r\n    const target = Math.min(count, list.length);   // safety guard\r\n    const indexes = new Set();\r\n\r\n    while (indexes.size < target) {\r\n        indexes.add(Math.floor(Math.random() * list.length));\r\n    }\r\n\r\n    return [...indexes].map(i => list[i]).join(\".\");\r\n}\r\n\r\nconst multiTag = getRandomTags(tags, 2);\r\npm.variables.set(\"tag\", multiTag);\r\nconsole.log(\"Random multi-tag:\", multiTag);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BASE}}/filter?tag={{tag}}",
+                  "host": [
+                    "{{BASE}}"
+                  ],
+                  "path": [
+                    "filter"
+                  ],
+                  "query": [
+                    {
+                      "key": "tag",
+                      "value": "{{tag}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Platform",
+          "item": [
+            {
+              "name": "GET-by_platform_games_browser",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\nconst validPlatforms = [\"PC (Windows)\", \"Web Browser\"];\nconst requestedPlatform = pm.variables.get(\"platform\");\nconst games = pm.response.json();\n\npm.test(\"Status code is 200\", () => {\n  pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is under 3000ms\", () => {\n  pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test(\"Response is a non-empty array\", () => {\n  pm.expect(games).to.be.an(\"array\").and.have.length.above(0);\n});\n\npm.test(\"Each game has all required keys\", () => {\n  games.forEach((game) => {\n    expectedKeys.forEach(key => {\n      pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n    });\n  });\n});\n\npm.test(\"Every game has valid core fields\", () => {\n  games.forEach(g => {\n    pm.expect(g.id).to.be.a(\"number\");\n    pm.expect(g.title).to.be.a(\"string\").and.not.empty;\n    pm.expect(g.game_url).to.match(/^https?:\\/\\//);\n  });\n});\n\npm.test(\"All games match the requested platform\", () => {\n  games.forEach((g, i) => {\n    pm.expect(\n      validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||\n      requestedPlatform === \"all\",\n      `Game[${g.id}] platform \"${g.platform}\" does not match requested \"${requestedPlatform}\"`\n    ).to.be.true;\n  });\n});\n\npm.test(\"All game IDs are unique\", () => {\n  const ids = games.map(g => g.id);\n  pm.expect(new Set(ids).size).to.equal(ids.length);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.variables.set(\"platform\", \"browser\")"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BASE}}/games?platform={{platform}}",
+                  "host": [
+                    "{{BASE}}"
+                  ],
+                  "path": [
+                    "games"
+                  ],
+                  "query": [
+                    {
+                      "key": "platform",
+                      "value": "{{platform}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET-by_platform_games_windows",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\nconst validPlatforms = [\"PC (Windows)\", \"Web Browser\"];\nconst requestedPlatform = pm.variables.get(\"platform\");\nconst games = pm.response.json();\n\npm.test(\"Status code is 200\", () => {\n  pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is under 3000ms\", () => {\n  pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test(\"Response is a non-empty array\", () => {\n  pm.expect(games).to.be.an(\"array\").and.have.length.above(0);\n});\n\npm.test(\"Each game has all required keys\", () => {\n  games.forEach((game) => {\n    expectedKeys.forEach(key => {\n      pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n    });\n  });\n});\n\npm.test(\"Every game has valid core fields\", () => {\n  games.forEach(g => {\n    pm.expect(g.id).to.be.a(\"number\");\n    pm.expect(g.title).to.be.a(\"string\").and.not.empty;\n    pm.expect(g.game_url).to.match(/^https?:\\/\\//);\n  });\n});\n\npm.test(\"All games match the requested platform\", () => {\n  games.forEach((g, i) => {\n    pm.expect(\n      validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||\n      requestedPlatform === \"all\",\n      `Game[${i}] platform \"${g.platform}\" does not match requested \"${requestedPlatform}\"`\n    ).to.be.true;\n  });\n});\n\npm.test(\"All game IDs are unique\", () => {\n  const ids = games.map(g => g.id);\n  pm.expect(new Set(ids).size).to.equal(ids.length);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.variables.set(\"platform\", \"windows\")"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BASE}}/games?platform={{platform}}",
+                  "host": [
+                    "{{BASE}}"
+                  ],
+                  "path": [
+                    "games"
+                  ],
+                  "query": [
+                    {
+                      "key": "platform",
+                      "value": "{{platform}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET-by_platform_games_all",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\nconst validPlatforms = [\"PC (Windows)\", \"Web Browser\"];\nconst requestedPlatform = pm.variables.get(\"platform\");\nconst games = pm.response.json();\n\npm.test(\"Status code is 200\", () => {\n  pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is under 3000ms\", () => {\n  pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test(\"Response is a non-empty array\", () => {\n  pm.expect(games).to.be.an(\"array\").and.have.length.above(0);\n});\n\npm.test(\"Each game has all required keys\", () => {\n  games.forEach((game, i) => {\n    expectedKeys.forEach(key => {\n      pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n    });\n  });\n});\n\npm.test(\"Every game has valid core fields\", () => {\n  games.forEach(g => {\n    pm.expect(g.id).to.be.a(\"number\");\n    pm.expect(g.title).to.be.a(\"string\").and.not.empty;\n    pm.expect(g.game_url).to.match(/^https?:\\/\\//);\n  });\n});\n\npm.test(\"All games match the requested platform\", () => {\n  games.forEach((g, i) => {\n    pm.expect(\n      validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||\n      requestedPlatform === \"all\",\n      `Game[${g.id}] platform \"${g.platform}\" does not match requested \"${requestedPlatform}\"`\n    ).to.be.true;\n  });\n});\n\npm.test(\"All game IDs are unique\", () => {\n  const ids = games.map(g => g.id);\n  pm.expect(new Set(ids).size).to.equal(ids.length);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.variables.set(\"platform\", \"all\")"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{BASE}}/games?platform={{platform}}",
+                  "host": [
+                    "{{BASE}}"
+                  ],
+                  "path": [
+                    "games"
+                  ],
+                  "query": [
+                    {
+                      "key": "platform",
+                      "value": "{{platform}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "GET-all_games",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\r\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\r\n  \"genre\",\"platform\",\"publisher\",\"developer\",\r\n  \"release_date\",\"freetogame_profile_url\"\r\n];\r\nconst games = pm.response.json();\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response time is under 3000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(3000);\r\n});\r\npm.test(`Each game has all required keys`, () => {\r\n    games.forEach((game) => {\r\n      expectedKeys.forEach(key => {\r\n        pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\r\n      });\r\n    });\r\n});\r\npm.test(\"Every game has valid core fields\", () => {\r\n    games.forEach(g => {\r\n        pm.expect(g.id).to.be.a(\"number\");\r\n        pm.expect(g.title).to.be.a(\"string\").and.not.empty;\r\n        pm.expect(g.game_url).to.match(/^https?:\\/\\//);\r\n    });\r\n});\r\npm.test(\"All game IDs are unique\", () => {\r\n    const ids = games.map(g => g.id);\r\n    pm.expect(new Set(ids).size).to.equal(ids.length);\r\n});\r\npm.test(\"Response contains 400+ games\", () => {\r\n    pm.expect(games.length).to.be.above(400);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE}}/games",
+              "host": [
+                "{{BASE}}"
+              ],
+              "path": [
+                "games"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET-by_id_game",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\n  'id','title','thumbnail','short_description','game_url',\n  'genre','platform','publisher','developer',\n  'release_date','freetogame_profile_url',\n  'description','minimum_system_requirements','screenshots','status'\n];\nconst requestedId = parseInt(pm.variables.get('game_id'), 10);\nconst game = pm.response.json();\n\npm.test('Status code is 200', () => {\n  pm.response.to.have.status(200);\n});\n\npm.test('Response time is under 3000ms', () => {\n  pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test('Response is an object (single game)', () => {\n  pm.expect(game).to.be.an('object').and.not.an('array');\n});\n\npm.test('Game has all required keys', () => {\n  expectedKeys.forEach(key => {\n    pm.expect(game, 'Missing key ' + key).to.have.property(key);\n  });\n});\n\npm.test('Returned game ID matches requested ID', () => {\n  pm.expect(game.id).to.equal(requestedId);\n});\n\npm.test('Core string fields are non-empty', () => {\n  pm.expect(game.title).to.be.a('string').and.not.empty;\n  pm.expect(game.genre).to.be.a('string').and.not.empty;\n  pm.expect(game.platform).to.be.a('string').and.not.empty;\n  pm.expect(game.publisher).to.be.a('string').and.not.empty;\n  pm.expect(game.developer).to.be.a('string').and.not.empty;\n});\n\npm.test('URL fields are valid URLs', () => {\n  pm.expect(game.game_url).to.match(/^https?:\\/\\//);\n  pm.expect(game.thumbnail).to.match(/^https?:\\/\\//);\n  pm.expect(game.freetogame_profile_url).to.match(/^https?:\\/\\//);\n});\n\npm.test('Release_date is a valid date string (YYYY-MM-DD)', () => {\n  pm.expect(game.release_date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/);\n});\n\npm.test('Screenshots are in array', () => {\n  pm.expect(game.screenshots).to.be.an('array');\n});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// I tried to set up random game_id variable, but somtimes the IDs are not in the database. So I set it to a known good ID.\r\npm.variables.set(\"game_id\", 310)"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE}}/game?id={{game_id}}",
+              "host": [
+                "{{BASE}}"
+              ],
+              "path": [
+                "game"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{game_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET-by_category_games",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\nconst requestedCategory = pm.variables.get(\"category\");\nconst games = pm.response.json();\n\npm.test(\"Status code is 200\", () => {\n  pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is under 3000ms\", () => {\n  pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test(\"Response is a non-empty array\", () => {\n  pm.expect(games).to.be.an(\"array\").and.have.length.above(0);\n});\n\npm.test(\"Each game has all required keys\", () => {\n  games.forEach((game) => {\n    expectedKeys.forEach(key => {\n      pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n    });\n  });\n});\n\npm.test(\"Every game has valid core fields\", () => {\n  games.forEach(g => {\n    pm.expect(g.id).to.be.a(\"number\");\n    pm.expect(g.title).to.be.a(\"string\").and.not.empty;\n    pm.expect(g.game_url).to.match(/^https?:\\/\\//);\n  });\n});\n\npm.test(\"All game IDs are unique\", () => {\n  const ids = games.map(g => g.id);\n  pm.expect(new Set(ids).size).to.equal(ids.length);\n});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const tags = [\r\n  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\r\n  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\r\n  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\r\n  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\r\n  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\r\n  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\r\n  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\r\n];\r\nfunction getRandomTag(list) {\r\n    const index = Math.floor(Math.random() * list.length);\r\n    return list[index];\r\n}\r\nconst tag = getRandomTag(tags);\r\npm.variables.set(\"category\", tag)\r\nconsole.log(\"Random tag chosen:\", tag);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE}}/games?category={{category}}",
+              "host": [
+                "{{BASE}}"
+              ],
+              "path": [
+                "games"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "{{category}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MultiParameter",
+      "item": [
+        {
+          "name": "GET-by_multi_games",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\nconst requestedCategory = pm.variables.get(\"category\");\nconst requestedSort = pm.variables.get(\"sort\");\nconst requestedPlatform = pm.variables.get(\"platform\");\nconst validPlatforms = [\"PC (Windows)\", \"Web Browser\"];\nconst games = pm.response.json();\n\npm.test(\"Status code is 200\", () => {\n  pm.response.to.have.status(200);\n});\n\npm.test(\"Response time is under 3000ms\", () => {\n  pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test(\"Response is a non-empty array\", () => {\n  pm.expect(games).to.be.an(\"array\").and.have.length.above(0);\n});\n\npm.test(\"Each game has all required keys\", () => {\n  games.forEach((game) => {\n    expectedKeys.forEach(key => {\n      pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n    });\n  });\n});\n\npm.test(\"Every game has valid core fields\", () => {\n  games.forEach(g => {\n    pm.expect(g.id).to.be.a(\"number\");\n    pm.expect(g.title).to.be.a(\"string\").and.not.empty;\n    pm.expect(g.game_url).to.match(/^https?:\\/\\//);\n  });\n});\n\nif (requestedSort === \"alphabetical\") {\n  pm.test(\"Games are sorted alphabetically\", () => {\n    const titles = games.map(g => g.title.toLowerCase());\n    pm.expect(titles).to.eql([...titles].sort());\n  });\n} else if (requestedSort === \"release-date\") {\n  pm.test(\"Games are sorted by release date, newest first\", () => {\n    const dates = games.map(g => g.release_date);\n    pm.expect(dates).to.eql([...dates].sort().reverse());\n  });\n}\npm.test(\"All games match the requested platform\", () => {\n  games.forEach((g, i) => {\n    pm.expect(\n      validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||\n      requestedPlatform === \"all\",\n      `Game[${g.id}] platform \"${g.platform}\" does not match requested \"${requestedPlatform}\"`\n    ).to.be.true;\n  });\n});\npm.test(\"All game IDs are unique\", () => {\n  const ids = games.map(g => g.id);\n  pm.expect(new Set(ids).size).to.equal(ids.length);\n});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set(\"sort\", \"alphabetical\")\r\npm.variables.set(\"platform\", \"windows\")\r\nconst tags = [\r\n  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\r\n  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\r\n  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\r\n  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\r\n  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\r\n  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\r\n  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\r\n];\r\nfunction getRandomTag(list) {\r\n    const index = Math.floor(Math.random() * list.length);\r\n    return list[index];\r\n}\r\nconst tag = getRandomTag(tags);\r\npm.variables.set(\"category\", tag)\r\nconsole.log(\"Random tag chosen:\", tag);\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE}}/games?platform={{platform}}&category={{category}}&sort-by={{sort}}",
+              "host": [
+                "{{BASE}}"
+              ],
+              "path": [
+                "games"
+              ],
+              "query": [
+                {
+                  "key": "platform",
+                  "value": "{{platform}}"
+                },
+                {
+                  "key": "category",
+                  "value": "{{category}}"
+                },
+                {
+                  "key": "sort-by",
+                  "value": "{{sort}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET-by_multi_tag_filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expectedKeys = [\n  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\n  \"genre\",\"platform\",\"publisher\",\"developer\",\n  \"release_date\",\"freetogame_profile_url\"\n];\nconst games = pm.response.json();\n\npm.test(\"Status code is 200 or 201\", () => {\n  pm.expect(pm.response.code).to.be.oneOf([200, 201]);\n});\n\npm.test(\"Response time is under 3000ms\", () => {\n  pm.expect(pm.response.responseTime).to.be.below(3000);\n});\n\npm.test(\"Response is an array or error object\", () => {\n  if (pm.response.code === 200) {\n      pm.expect(games).to.be.an(\"array\");\n  } else {\n      pm.expect(games).to.be.an(\"object\");\n      pm.expect(games).to.have.property(\"status\");\n      pm.expect(games).to.have.property(\"status_message\");\n  }\n});\n\npm.test(\"Each game has all required keys\", () => {\n  if (Array.isArray(games)) {\n      games.forEach((game) => {\n        expectedKeys.forEach(key => {\n          pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\n        });\n      });\n  }\n});\n\npm.test(\"Every game has valid core fields\", () => {\n  if (Array.isArray(games)) {\n      games.forEach(g => {\n        pm.expect(g.id).to.be.a(\"number\");\n        pm.expect(g.title).to.be.a(\"string\").and.not.empty;\n        pm.expect(g.game_url).to.match(/^https?:\\/\\//);\n      });\n  }\n});\n\npm.test(\"Games are sorted by release date, newest first\", () => {\n    if (Array.isArray(games)) {\n        const dates = games.map(g => g.release_date);\n        const expected = [...dates].sort().reverse();\n        pm.expect(dates).to.eql(expected);\n    }\n});\n\npm.test(\"All game IDs are unique\", () => {\n  if (Array.isArray(games)) {\n      const ids = games.map(g => g.id);\n      pm.expect(new Set(ids).size).to.equal(ids.length);\n  }\n});\n\npm.test(\"All games match the requested platform\", () => {\n  if (Array.isArray(games)) {\n      const requestedPlatform = pm.variables.get(\"platform\");\n      const validPlatforms = [\"browser\", \"pc\"];\n      games.forEach((g) => {\n        pm.expect(\n          validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||\n          requestedPlatform === \"all\",\n          `Game[${g.id}] platform \"${g.platform}\" does not match requested platform \"${requestedPlatform}\"`\n        ).to.be.true;\n      });\n  }\n});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set(\"sort\", \"release-date\")\r\npm.variables.set(\"platform\", \"browser\")\r\nconst tags = [\r\n  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\r\n  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\r\n  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\r\n  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\r\n  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\r\n  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\r\n  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\r\n];\r\n\r\nfunction getRandomTags(list, count = 5) {\r\n    const target = Math.min(count, list.length);   // safety guard\r\n    const indexes = new Set();\r\n\r\n    while (indexes.size < target) {\r\n        indexes.add(Math.floor(Math.random() * list.length));\r\n    }\r\n\r\n    return [...indexes].map(i => list[i]).join(\".\");\r\n}\r\n\r\nconst multiTag = getRandomTags(tags, 2);\r\npm.variables.set(\"tag\", multiTag);\r\nconsole.log(\"Random multi-tag:\", multiTag);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE}}/filter?tag={{tag}}&platform={{platform}}&sort-by={{sort}}",
+              "host": [
+                "{{BASE}}"
+              ],
+              "path": [
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "{{tag}}"
+                },
+                {
+                  "key": "platform",
+                  "value": "{{platform}}"
+                },
+                {
+                  "key": "sort-by",
+                  "value": "{{sort}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "category",
+      "value": ""
+    },
+    {
+      "key": "platform",
+      "value": ""
+    },
+    {
+      "key": "game_id",
+      "value": ""
+    },
+    {
+      "key": "sort",
+      "value": ""
+    },
+    {
+      "key": "tag",
+      "value": ""
+    }
+  ]
+}

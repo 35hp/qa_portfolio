@@ -1,0 +1,233 @@
+{
+  "info": {
+    "_postman_id": "d80fa93a-ed30-4ebf-9586-6431ffcd69c4",
+    "name": "portfolioQA_FreeToGame_manual",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "60424403",
+    "_collection_link": "https://go.postman.co/collection/60424403-d80fa93a-ed30-4ebf-9586-6431ffcd69c4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "GET-all_games",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/games",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "games"
+          ]
+        },
+        "description": "_Retrieves a list of all free-to-play games available in the FreeToGame database. Returns an array of game objects, each containing basic details such as the game ID, title, thumbnail, short description, game URL, genre, platform, publisher, developer, release date, and profile URL._\n\n**Base URL:** `{{BASE}}` **Authentication:** None required. **Response:** `200 OK` — An array of game objects."
+      },
+      "response": []
+    },
+    {
+      "name": "GET-by_id_game",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/game?id={{game_id}}",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "game"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "{{game_id}}",
+              "description": "unique_number"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET-by_category_games",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/games?category={{category}}",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "games"
+          ],
+          "query": [
+            {
+              "key": "category",
+              "value": "{{category}}",
+              "description": "\"mmorpg\",\n\"shooter\",\n\"strategy\",\n\"moba\",\n\"racing\",\n\"sports\",\n\"social\",\n\"sandbox\",\n\"open-world\",\n\"survival\",\n\"pvp\",\n\"pve\",\n\"pixel\",\n\"voxel\",\n\"zombie\",\n\"turn-based\",\n\"first-person\",\n\"third-Person\",\n\"top-down\",\n\"tank\",\n\"space\",\n\"sailing\",\n\"side-scroller\",\n\"superhero\",\n\"permadeath\",\n\"card\",\n\"battle-royale\",\n\"mmo\",\n\"mmofps\",\n\"mmotps\",\n\"3d\",\n\"2d\",\n\"anime\",\n\"fantasy\",\n\"sci-fi\",\n\"fighting\",\n\"action-rpg\",\n\"action\",\n\"military\",\n\"martial-arts\",\n\"flight\",\n\"low-spec\",\n\"tower-defense\",\n\"horror\",\n\"mmorts\""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET-by_platform_games",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/games?platform={{platform}}",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "games"
+          ],
+          "query": [
+            {
+              "key": "platform",
+              "value": "{{platform}}",
+              "description": "\"windows\",\n\"browser\",\n\"all\""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET-by_sort_games",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/games?sort-by={{sort}}",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "games"
+          ],
+          "query": [
+            {
+              "key": "sort-by",
+              "value": "{{sort}}",
+              "description": "\"release-date\",\n\"popularity\",\n\"alphabetical\",\n\"relevance\""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET-by_tag_filter",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/filter?tag={{tag}}",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "filter"
+          ],
+          "query": [
+            {
+              "key": "tag",
+              "value": "{{tag}}",
+              "description": "\"mmorpg\",\n\"shooter\",\n\"strategy\",\n\"moba\",\n\"racing\",\n\"sports\",\n\"social\",\n\"sandbox\",\n\"open-world\",\n\"survival\",\n\"pvp\",\n\"pve\",\n\"pixel\",\n\"voxel\",\n\"zombie\",\n\"turn-based\",\n\"first-person\",\n\"third-Person\",\n\"top-down\",\n\"tank\",\n\"space\",\n\"sailing\",\n\"side-scroller\",\n\"superhero\",\n\"permadeath\",\n\"card\",\n\"battle-royale\",\n\"mmo\",\n\"mmofps\",\n\"mmotps\",\n\"3d\",\n\"2d\",\n\"anime\",\n\"fantasy\",\n\"sci-fi\",\n\"fighting\",\n\"action-rpg\",\n\"action\",\n\"military\",\n\"martial-arts\",\n\"flight\",\n\"low-spec\",\n\"tower-defense\",\n\"horror\",\n\"mmorts\""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET-by_multi_games",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/games?platform={{platform}}&category={{category}}&sort-by={{sort}}",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "games"
+          ],
+          "query": [
+            {
+              "key": "platform",
+              "value": "{{platform}}"
+            },
+            {
+              "key": "category",
+              "value": "{{category}}"
+            },
+            {
+              "key": "sort-by",
+              "value": "{{sort}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET-by_multi_tag_filter",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE}}/filter?tag={{tag}}&platform={{platform}}&sort-by={{sort}}",
+          "host": [
+            "{{BASE}}"
+          ],
+          "path": [
+            "filter"
+          ],
+          "query": [
+            {
+              "key": "tag",
+              "value": "{{tag}}"
+            },
+            {
+              "key": "platform",
+              "value": "{{platform}}"
+            },
+            {
+              "key": "sort-by",
+              "value": "{{sort}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "category",
+      "value": ""
+    },
+    {
+      "key": "platform",
+      "value": ""
+    },
+    {
+      "key": "game_id",
+      "value": ""
+    },
+    {
+      "key": "sort",
+      "value": ""
+    },
+    {
+      "key": "tag",
+      "value": ""
+    }
+  ]
+}
