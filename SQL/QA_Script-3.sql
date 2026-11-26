@@ -1,4 +1,4 @@
--- this script returnes the album with the most songs --
+-- to returne the album with the most songs --
 WITH album_counts AS (
 	SELECT a2.Name ArtistName, a.Title AlbumTitle, COUNT (t.TrackId) NumOfSongs
 	FROM Track t 

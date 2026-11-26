@@ -47,3 +47,12 @@
 |Heavy Metal Classic|39.71|AAC |
 |On-The-Go 1|6.06|MPEG |
 |Grunge|4.04|AAC |
+
+## [QA_Script-5](./QA_Script-5.sql) Output:
+|AtristName|TotalSold|
+|----------|---------|
+|Iron Maiden|138.6|
+|U2|105.93|
+|Metallica|90.09|
+|Led Zeppelin|86.13|
+|Lost|81.59|
