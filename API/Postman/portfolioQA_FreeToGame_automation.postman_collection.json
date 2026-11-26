@@ -544,23 +544,28 @@
   "variable": [
     {
       "key": "category",
-      "value": ""
+      "value": "",
+      "description": "shooter"
     },
     {
       "key": "platform",
-      "value": ""
+      "value": "",
+      "description": "windows"
     },
     {
       "key": "game_id",
-      "value": ""
+      "value": "",
+      "description": "312"
     },
     {
       "key": "sort",
-      "value": ""
+      "value": "",
+      "description": "popularity"
     },
     {
       "key": "tag",
-      "value": ""
+      "value": "",
+      "description": "mmorpg.2d"
     }
   ]
 }
