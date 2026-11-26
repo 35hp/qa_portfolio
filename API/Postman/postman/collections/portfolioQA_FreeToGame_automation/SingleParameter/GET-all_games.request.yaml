@@ -1,0 +1,72 @@
+$kind: http-request
+url: "{{BASE}}/games"
+method: GET
+scripts:
+  - type: afterResponse
+    code: "const expectedKeys = [\r
+
+      \  \"id\",\"title\",\"thumbnail\",\"short_description\",\"game_url\",\r
+
+      \  \"genre\",\"platform\",\"publisher\",\"developer\",\r
+
+      \  \"release_date\",\"freetogame_profile_url\"\r
+
+      ];\r
+
+      const games = pm.response.json();\r
+
+      pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      pm.test(\"Response time is under 3000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(3000);\r
+
+      });\r
+
+      pm.test(`Each game has all required keys`, () => {\r
+
+      \    games.forEach((game) => {\r
+
+      \      expectedKeys.forEach(key => {\r
+
+      \        pm.expect(game, `Game[${game.id}] missing key \"${key}\"`).to.have.property(key);\r
+
+      \      });\r
+
+      \    });\r
+
+      });\r
+
+      pm.test(\"Every game has valid core fields\", () => {\r
+
+      \    games.forEach(g => {\r
+
+      \        pm.expect(g.id).to.be.a(\"number\");\r
+
+      \        pm.expect(g.title).to.be.a(\"string\").and.not.empty;\r
+
+      \        pm.expect(g.game_url).to.match(/^https?:\\/\\//);\r
+
+      \    });\r
+
+      });\r
+
+      pm.test(\"All game IDs are unique\", () => {\r
+
+      \    const ids = games.map(g => g.id);\r
+
+      \    pm.expect(new Set(ids).size).to.equal(ids.length);\r
+
+      });\r
+
+      pm.test(\"Response contains 400+ games\", () => {\r
+
+      \    pm.expect(games.length).to.be.above(400);\r
+
+      });"
+    language: text/javascript
+order: 1892

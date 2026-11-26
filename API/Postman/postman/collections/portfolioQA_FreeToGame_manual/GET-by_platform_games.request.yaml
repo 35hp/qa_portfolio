@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{BASE}}/games?platform={{platform}}"
+method: GET
+queryParams:
+  - key: platform
+    value: "{{platform}}"
+    disabled: false
+    description: |-
+      "windows",
+      "browser",
+      "all"
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+  - type: beforeRequest
+    code: ""
+    language: text/javascript
+order: 2550

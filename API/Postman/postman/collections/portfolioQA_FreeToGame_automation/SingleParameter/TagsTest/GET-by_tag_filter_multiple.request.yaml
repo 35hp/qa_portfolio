@@ -1,0 +1,106 @@
+$kind: http-request
+url: "{{BASE}}/filter?tag={{tag}}"
+method: GET
+queryParams:
+  tag: "{{tag}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      const expectedKeys = [
+        "id","title","thumbnail","short_description","game_url",
+        "genre","platform","publisher","developer",
+        "release_date","freetogame_profile_url"
+      ];
+      const tag = pm.variables.get("tag")
+      const baseUrl = pm.environment.get("BASE");
+
+      // Validate a single tag's response
+      function validateTagResponse(tag, body, statusCode, responseTime) {
+        pm.test(`[${tag}] Status code is 200 or 201`, () => {
+          pm.expect(statusCode).to.be.oneOf([200, 201]);
+        });
+
+        pm.test(`[${tag}] Response time is under 3000ms`, () => {
+          pm.expect(responseTime).to.be.below(3000);
+        });
+
+        if (statusCode === 200) {
+            pm.test(`[${tag}] Response is a non-empty array`, () => {
+              pm.expect(body).to.be.an("array").and.have.length.above(0);
+            });
+
+            pm.test(`[${tag}] Each game has all required keys`, () => {
+              body.forEach((game) => {
+                expectedKeys.forEach(key => {
+                  pm.expect(game, `[${tag}] Game[${game.id}] missing key "${key}"`).to.have.property(key);
+                });
+              });
+            });
+        } else {
+            pm.test(`[${tag}] Response indicates no data found`, () => {
+                pm.expect(body).to.have.property("status", 0);
+                pm.expect(body).to.have.property("status_message");
+            });
+        }
+      }
+
+      // Safely handle the response
+      try {
+          const jsonData = pm.response.json();
+          validateTagResponse(tag, jsonData, pm.response.code, pm.response.responseTime);
+      } catch (e) {
+          pm.test("Response is valid JSON", () => {
+              pm.expect(false, "Response was not valid JSON: " + e.message).to.be.true;
+          });
+      }
+    language: text/javascript
+  - type: beforeRequest
+    code: "const tags = [\r
+
+      \  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\r
+
+      \  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\r
+
+      \  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\r
+
+      \  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\r
+
+      \  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\r
+
+      \  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\r
+
+      \  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\r
+
+      ];\r
+
+      \r
+
+      function getRandomTags(list, count = 5) {\r
+
+      \    const target = Math.min(count, list.length);   // safety guard\r
+
+      \    const indexes = new Set();\r
+
+      \r
+
+      \    while (indexes.size < target) {\r
+
+      \        indexes.add(Math.floor(Math.random() * list.length));\r
+
+      \    }\r
+
+      \r
+
+      \    return [...indexes].map(i => list[i]).join(\".\");\r
+
+      }\r
+
+      \r
+
+      const multiTag = getRandomTags(tags, 2);\r
+
+      pm.variables.set(\"tag\", multiTag);\r
+
+      console.log(\"Random multi-tag:\", multiTag);"
+    language: text/javascript
+order: 3000

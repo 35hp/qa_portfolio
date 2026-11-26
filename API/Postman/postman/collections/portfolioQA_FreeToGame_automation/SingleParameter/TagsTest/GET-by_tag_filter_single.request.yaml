@@ -1,0 +1,67 @@
+$kind: http-request
+url: "{{BASE}}/filter?tag={{tag}}"
+method: GET
+queryParams:
+  tag: "{{tag}}"
+order: 2000
+scripts:
+  - type: afterResponse
+    code: |-
+      // Data sourced directly from FreeToGame_Info.json
+      const tags = [
+        "mmorpg","shooter","strategy","moba","racing","sports","social",
+        "sandbox","open-world","survival","pvp","pve","pixel","voxel",
+        "zombie","turn-based","first-person","third-Person","top-down",
+        "tank","space","sailing","side-scroller","superhero","permadeath",
+        "card","battle-royale","mmo","mmofps","mmotps","3d","2d","anime",
+        "fantasy","sci-fi","fighting","action-rpg","action","military",
+        "martial-arts","flight","low-spec","tower-defense","horror","mmorts"
+      ];
+
+      const expectedKeys = [
+        "id","title","thumbnail","short_description","game_url",
+        "genre","platform","publisher","developer",
+        "release_date","freetogame_profile_url"
+      ];
+
+      const baseUrl = pm.environment.get("BASE");
+
+      // Validate a single tag's response
+      function validateTagResponse(tag, body, statusCode, responseTime) {
+        pm.test(`[${tag}] Status code is 200`, () => {
+          pm.expect(statusCode).to.equal(200);
+        });
+
+        pm.test(`[${tag}] Response time is under 3000ms`, () => {
+          pm.expect(responseTime).to.be.below(3000);
+        });
+
+        pm.test(`[${tag}] Response is a non-empty array`, () => {
+          pm.expect(body).to.be.an("array").and.have.length.above(0);
+        });
+
+        pm.test(`[${tag}] Each game has all required keys`, () => {
+          body.forEach((game) => {
+            expectedKeys.forEach(key => {
+              pm.expect(game, `[${tag}] Game[${game.id}] missing key "${key}"`).to.have.property(key);
+            });
+          });
+        });
+      }
+
+      // Fire a pm.sendRequest for every tag at most 10 req/s (100 ms apart)
+      tags.forEach((tag, index) => {
+        setTimeout(() => {
+          pm.sendRequest(
+            { url: `${baseUrl}/filter?tag=${encodeURIComponent(tag)}`, method: "GET" },
+            (err, res) => {
+              if (err) {
+                pm.test(`[${tag}] Request succeeded`, () => { throw new Error(err.message); });
+              } else {
+                validateTagResponse(tag, res.json(), res.code, res.responseTime);
+              }
+            }
+          );
+        }, index * 100); // 100 ms between each request = max 10 req/s
+      });
+    language: text/javascript

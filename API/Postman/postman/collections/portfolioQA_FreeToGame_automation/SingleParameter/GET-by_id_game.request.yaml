@@ -1,0 +1,67 @@
+$kind: http-request
+url: "{{BASE}}/game?id={{game_id}}"
+method: GET
+queryParams:
+  id: "{{game_id}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      const expectedKeys = [
+        'id','title','thumbnail','short_description','game_url',
+        'genre','platform','publisher','developer',
+        'release_date','freetogame_profile_url',
+        'description','minimum_system_requirements','screenshots','status'
+      ];
+      const requestedId = parseInt(pm.variables.get('game_id'), 10);
+      const game = pm.response.json();
+
+      pm.test('Status code is 200', () => {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('Response time is under 3000ms', () => {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      pm.test('Response is an object (single game)', () => {
+        pm.expect(game).to.be.an('object').and.not.an('array');
+      });
+
+      pm.test('Game has all required keys', () => {
+        expectedKeys.forEach(key => {
+          pm.expect(game, 'Missing key ' + key).to.have.property(key);
+        });
+      });
+
+      pm.test('Returned game ID matches requested ID', () => {
+        pm.expect(game.id).to.equal(requestedId);
+      });
+
+      pm.test('Core string fields are non-empty', () => {
+        pm.expect(game.title).to.be.a('string').and.not.empty;
+        pm.expect(game.genre).to.be.a('string').and.not.empty;
+        pm.expect(game.platform).to.be.a('string').and.not.empty;
+        pm.expect(game.publisher).to.be.a('string').and.not.empty;
+        pm.expect(game.developer).to.be.a('string').and.not.empty;
+      });
+
+      pm.test('URL fields are valid URLs', () => {
+        pm.expect(game.game_url).to.match(/^https?:\/\//);
+        pm.expect(game.thumbnail).to.match(/^https?:\/\//);
+        pm.expect(game.freetogame_profile_url).to.match(/^https?:\/\//);
+      });
+
+      pm.test('Release_date is a valid date string (YYYY-MM-DD)', () => {
+        pm.expect(game.release_date).to.match(/^\d{4}-\d{2}-\d{2}$/);
+      });
+
+      pm.test('Screenshots are in array', () => {
+        pm.expect(game.screenshots).to.be.an('array');
+      });
+    language: text/javascript
+  - type: beforeRequest
+    code: "// I tried to set up random game_id variable, but somtimes the IDs are not in the database. So I set it to a known good ID.\r
+
+      pm.variables.set(\"game_id\", 310)"
+    language: text/javascript
+order: 5455

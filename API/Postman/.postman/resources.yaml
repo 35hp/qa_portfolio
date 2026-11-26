@@ -1,0 +1,10 @@
+# Use this workspace to collaborate
+workspace:
+  id: 504b17e5-5ff0-4663-a9c5-f9f9c4241485
+
+localResources:
+  specs:
+    - ../postman/specs/portfolio/portfolio.yaml
+resourceNameMappings:
+  specs:
+    - ../postman/specs/portfolio/portfolio.yaml: portfolio

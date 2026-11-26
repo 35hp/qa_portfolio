@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: portfolio
+  version: 1.0.0
+  description: ''
+servers:
+  - url: '{{BASE}}'
+paths:
+  /games:
+    get:
+      summary: GET-all_games
+      responses: {}
+      tags:
+        - SingleParameter
+  /game:
+    get:
+      summary: GET-by_id_game
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: '{{game_id}}'
+      responses: {}
+      tags:
+        - SingleParameter
+  /filter:
+    get:
+      summary: GET-by_tag_filter_single
+      parameters:
+        - name: tag
+          in: query
+          schema:
+            type: string
+          example: '{{tag}}'
+      responses: {}
+      tags:
+        - SingleParameter
+        - TagsTest

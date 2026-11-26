@@ -1,0 +1,64 @@
+$kind: http-request
+url: "{{BASE}}/games?platform={{platform}}"
+method: GET
+queryParams:
+  platform: "{{platform}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      const expectedKeys = [
+        "id","title","thumbnail","short_description","game_url",
+        "genre","platform","publisher","developer",
+        "release_date","freetogame_profile_url"
+      ];
+      const validPlatforms = ["PC (Windows)", "Web Browser"];
+      const requestedPlatform = pm.variables.get("platform");
+      const games = pm.response.json();
+
+      pm.test("Status code is 200", () => {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response time is under 3000ms", () => {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      pm.test("Response is a non-empty array", () => {
+        pm.expect(games).to.be.an("array").and.have.length.above(0);
+      });
+
+      pm.test("Each game has all required keys", () => {
+        games.forEach((game) => {
+          expectedKeys.forEach(key => {
+            pm.expect(game, `Game[${game.id}] missing key "${key}"`).to.have.property(key);
+          });
+        });
+      });
+
+      pm.test("Every game has valid core fields", () => {
+        games.forEach(g => {
+          pm.expect(g.id).to.be.a("number");
+          pm.expect(g.title).to.be.a("string").and.not.empty;
+          pm.expect(g.game_url).to.match(/^https?:\/\//);
+        });
+      });
+
+      pm.test("All games match the requested platform", () => {
+        games.forEach((g, i) => {
+          pm.expect(
+            validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||
+            requestedPlatform === "all",
+            `Game[${g.id}] platform "${g.platform}" does not match requested "${requestedPlatform}"`
+          ).to.be.true;
+        });
+      });
+
+      pm.test("All game IDs are unique", () => {
+        const ids = games.map(g => g.id);
+        pm.expect(new Set(ids).size).to.equal(ids.length);
+      });
+    language: text/javascript
+  - type: beforeRequest
+    code: pm.variables.set("platform", "browser")
+    language: text/javascript
+order: 1000

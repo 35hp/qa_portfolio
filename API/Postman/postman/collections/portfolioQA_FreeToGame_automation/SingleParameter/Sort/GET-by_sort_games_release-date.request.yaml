@@ -1,0 +1,35 @@
+$kind: http-request
+url: "{{BASE}}/games?sort-by={{sort}}"
+method: GET
+queryParams:
+  sort-by: "{{sort}}"
+scripts:
+  - type: beforeRequest
+    code: pm.variables.set("sort", "release-date")
+    language: text/javascript
+  - type: afterResponse
+    code: "const games = pm.response.json();\r
+
+      pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      pm.test(\"Response time is under 3000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(3000);\r
+
+      });\r
+
+      pm.test(\"Games are sorted by release date, newest first\", () => {\r
+
+      \    const dates = games.map(g => g.release_date);\r
+
+      \    const expected = [...dates].sort().reverse();\r
+
+      \    pm.expect(dates).to.eql(expected);\r
+
+      });"
+    language: text/javascript
+order: 3498

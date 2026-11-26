@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{BASE}}/games?platform={{platform}}&category={{category}}&sort-by={{sort}}"
+method: GET
+queryParams:
+  platform: "{{platform}}"
+  category: "{{category}}"
+  sort-by: "{{sort}}"
+order: 4000
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+  - type: beforeRequest
+    code: ""
+    language: text/javascript

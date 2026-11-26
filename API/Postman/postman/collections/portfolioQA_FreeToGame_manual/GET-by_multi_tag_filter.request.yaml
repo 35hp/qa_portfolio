@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{BASE}}/filter?tag={{tag}}&platform={{platform}}&sort-by={{sort}}"
+method: GET
+queryParams:
+  tag: "{{tag}}"
+  platform: "{{platform}}"
+  sort-by: "{{sort}}"
+order: 5000
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+  - type: beforeRequest
+    code: ""
+    language: text/javascript

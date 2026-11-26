@@ -1,0 +1,12 @@
+$kind: http-request
+description: |-
+  _Retrieves a list of all free-to-play games available in the FreeToGame database. Returns an array of game objects, each containing basic details such as the game ID, title, thumbnail, short description, game URL, genre, platform, publisher, developer, release date, and profile URL._
+
+  **Base URL:** `{{BASE}}` **Authentication:** None required. **Response:** `200 OK` — An array of game objects.
+url: "{{BASE}}/games"
+method: GET
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+order: 2000

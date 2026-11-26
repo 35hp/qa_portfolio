@@ -1,0 +1,7 @@
+$kind: collection
+variables:
+  category: ""
+  platform: ""
+  game_id: ""
+  sort: ""
+  tag: ""

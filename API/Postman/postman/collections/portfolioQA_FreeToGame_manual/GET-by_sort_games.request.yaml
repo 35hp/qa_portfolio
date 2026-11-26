@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{BASE}}/games?sort-by={{sort}}"
+method: GET
+queryParams:
+  - key: sort-by
+    value: "{{sort}}"
+    disabled: false
+    description: |-
+      "release-date",
+      "popularity",
+      "alphabetical",
+      "relevance"
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+  - type: beforeRequest
+    code: ""
+    language: text/javascript
+order: 3043

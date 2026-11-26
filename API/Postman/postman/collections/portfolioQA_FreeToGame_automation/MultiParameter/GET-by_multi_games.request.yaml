@@ -1,0 +1,112 @@
+$kind: http-request
+url: "{{BASE}}/games?platform={{platform}}&category={{category}}&sort-by={{sort}}"
+method: GET
+queryParams:
+  platform: "{{platform}}"
+  category: "{{category}}"
+  sort-by: "{{sort}}"
+order: 6000
+scripts:
+  - type: afterResponse
+    code: |-
+      const expectedKeys = [
+        "id","title","thumbnail","short_description","game_url",
+        "genre","platform","publisher","developer",
+        "release_date","freetogame_profile_url"
+      ];
+      const requestedCategory = pm.variables.get("category");
+      const requestedSort = pm.variables.get("sort");
+      const requestedPlatform = pm.variables.get("platform");
+      const validPlatforms = ["PC (Windows)", "Web Browser"];
+      const games = pm.response.json();
+
+      pm.test("Status code is 200", () => {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response time is under 3000ms", () => {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      pm.test("Response is a non-empty array", () => {
+        pm.expect(games).to.be.an("array").and.have.length.above(0);
+      });
+
+      pm.test("Each game has all required keys", () => {
+        games.forEach((game) => {
+          expectedKeys.forEach(key => {
+            pm.expect(game, `Game[${game.id}] missing key "${key}"`).to.have.property(key);
+          });
+        });
+      });
+
+      pm.test("Every game has valid core fields", () => {
+        games.forEach(g => {
+          pm.expect(g.id).to.be.a("number");
+          pm.expect(g.title).to.be.a("string").and.not.empty;
+          pm.expect(g.game_url).to.match(/^https?:\/\//);
+        });
+      });
+
+      if (requestedSort === "alphabetical") {
+        pm.test("Games are sorted alphabetically", () => {
+          const titles = games.map(g => g.title.toLowerCase());
+          pm.expect(titles).to.eql([...titles].sort());
+        });
+      } else if (requestedSort === "release-date") {
+        pm.test("Games are sorted by release date, newest first", () => {
+          const dates = games.map(g => g.release_date);
+          pm.expect(dates).to.eql([...dates].sort().reverse());
+        });
+      }
+      pm.test("All games match the requested platform", () => {
+        games.forEach((g, i) => {
+          pm.expect(
+            validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||
+            requestedPlatform === "all",
+            `Game[${g.id}] platform "${g.platform}" does not match requested "${requestedPlatform}"`
+          ).to.be.true;
+        });
+      });
+      pm.test("All game IDs are unique", () => {
+        const ids = games.map(g => g.id);
+        pm.expect(new Set(ids).size).to.equal(ids.length);
+      });
+    language: text/javascript
+  - type: beforeRequest
+    code: "pm.variables.set(\"sort\", \"alphabetical\")\r
+
+      pm.variables.set(\"platform\", \"windows\")\r
+
+      const tags = [\r
+
+      \  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\r
+
+      \  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\r
+
+      \  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\r
+
+      \  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\r
+
+      \  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\r
+
+      \  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\r
+
+      \  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\r
+
+      ];\r
+
+      function getRandomTag(list) {\r
+
+      \    const index = Math.floor(Math.random() * list.length);\r
+
+      \    return list[index];\r
+
+      }\r
+
+      const tag = getRandomTag(tags);\r
+
+      pm.variables.set(\"category\", tag)\r
+
+      console.log(\"Random tag chosen:\", tag);\r\n"
+    language: text/javascript

@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{BASE}}/game?id={{game_id}}"
+method: GET
+queryParams:
+  - key: id
+    value: "{{game_id}}"
+    disabled: false
+    description: unique_number
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+  - type: beforeRequest
+    code: ""
+    language: text/javascript
+order: 2001

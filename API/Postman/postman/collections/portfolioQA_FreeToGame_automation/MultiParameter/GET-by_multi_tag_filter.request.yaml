@@ -1,0 +1,138 @@
+$kind: http-request
+url: "{{BASE}}/filter?tag={{tag}}&platform={{platform}}&sort-by={{sort}}"
+method: GET
+queryParams:
+  tag: "{{tag}}"
+  platform: "{{platform}}"
+  sort-by: "{{sort}}"
+order: 7000
+scripts:
+  - type: afterResponse
+    code: |-
+      const expectedKeys = [
+        "id","title","thumbnail","short_description","game_url",
+        "genre","platform","publisher","developer",
+        "release_date","freetogame_profile_url"
+      ];
+      const games = pm.response.json();
+
+      pm.test("Status code is 200 or 201", () => {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+
+      pm.test("Response time is under 3000ms", () => {
+        pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      pm.test("Response is an array or error object", () => {
+        if (pm.response.code === 200) {
+            pm.expect(games).to.be.an("array");
+        } else {
+            pm.expect(games).to.be.an("object");
+            pm.expect(games).to.have.property("status");
+            pm.expect(games).to.have.property("status_message");
+        }
+      });
+
+      pm.test("Each game has all required keys", () => {
+        if (Array.isArray(games)) {
+            games.forEach((game) => {
+              expectedKeys.forEach(key => {
+                pm.expect(game, `Game[${g.id}] missing key "${key}"`).to.have.property(key);
+              });
+            });
+        }
+      });
+
+      pm.test("Every game has valid core fields", () => {
+        if (Array.isArray(games)) {
+            games.forEach(g => {
+              pm.expect(g.id).to.be.a("number");
+              pm.expect(g.title).to.be.a("string").and.not.empty;
+              pm.expect(g.game_url).to.match(/^https?:\/\//);
+            });
+        }
+      });
+
+      pm.test("Games are sorted by release date, newest first", () => {
+          if (Array.isArray(games)) {
+              const dates = games.map(g => g.release_date);
+              const expected = [...dates].sort().reverse();
+              pm.expect(dates).to.eql(expected);
+          }
+      });
+
+      pm.test("All game IDs are unique", () => {
+        if (Array.isArray(games)) {
+            const ids = games.map(g => g.id);
+            pm.expect(new Set(ids).size).to.equal(ids.length);
+        }
+      });
+
+      pm.test("All games match the requested platform", () => {
+        if (Array.isArray(games)) {
+            const requestedPlatform = pm.variables.get("platform");
+            const validPlatforms = ["browser", "pc"];
+            games.forEach((g) => {
+              pm.expect(
+                validPlatforms.some(p => g.platform.toLowerCase().includes(p.toLowerCase())) ||
+                requestedPlatform === "all",
+                `Game[${g.id}] platform "${g.platform}" does not match requested platform "${requestedPlatform}"`
+              ).to.be.true;
+            });
+        }
+      });
+    language: text/javascript
+  - type: beforeRequest
+    code: "pm.variables.set(\"sort\", \"release-date\")\r
+
+      pm.variables.set(\"platform\", \"browser\")\r
+
+      const tags = [\r
+
+      \  \"mmorpg\",\"shooter\",\"strategy\",\"moba\",\"racing\",\"sports\",\"social\",\r
+
+      \  \"sandbox\",\"open-world\",\"survival\",\"pvp\",\"pve\",\"pixel\",\"voxel\",\r
+
+      \  \"zombie\",\"turn-based\",\"first-person\",\"third-Person\",\"top-down\",\r
+
+      \  \"tank\",\"space\",\"sailing\",\"side-scroller\",\"superhero\",\"permadeath\",\r
+
+      \  \"card\",\"battle-royale\",\"mmo\",\"mmofps\",\"mmotps\",\"3d\",\"2d\",\"anime\",\r
+
+      \  \"fantasy\",\"sci-fi\",\"fighting\",\"action-rpg\",\"action\",\"military\",\r
+
+      \  \"martial-arts\",\"flight\",\"low-spec\",\"tower-defense\",\"horror\",\"mmorts\"\r
+
+      ];\r
+
+      \r
+
+      function getRandomTags(list, count = 5) {\r
+
+      \    const target = Math.min(count, list.length);   // safety guard\r
+
+      \    const indexes = new Set();\r
+
+      \r
+
+      \    while (indexes.size < target) {\r
+
+      \        indexes.add(Math.floor(Math.random() * list.length));\r
+
+      \    }\r
+
+      \r
+
+      \    return [...indexes].map(i => list[i]).join(\".\");\r
+
+      }\r
+
+      \r
+
+      const multiTag = getRandomTags(tags, 2);\r
+
+      pm.variables.set(\"tag\", multiTag);\r
+
+      console.log(\"Random multi-tag:\", multiTag);"
+    language: text/javascript
