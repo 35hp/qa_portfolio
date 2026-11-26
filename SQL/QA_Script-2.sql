@@ -1,4 +1,4 @@
- -- this script will give us the number of tracks for each artist if they have more than 50 --
+-- to give the number of tracks for each artist if more than 50 --
 SELECT a2.Name, COUNT(t.TrackId) NumOfTracks
 FROM Track t 
 JOIN Album a ON t.AlbumId = a.AlbumId

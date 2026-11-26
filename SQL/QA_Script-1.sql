@@ -1,4 +1,4 @@
--- To display ONLY Oct 2025, USA, invoices; With customer names and sale rep names --
+-- to show ONLY Oct 2025, USA, invoices; With customer names and sale rep names --
 SELECT i.Total InvoiceAmt , DATE(i.InvoiceDate) InvoiceDate,
 c.FirstName || ' ' || c.LastName CustomerFullName, c.Phone CustomerPhone,
 e.FirstName || ' ' || e.LastName SaleRepFullName, e.Phone SaleRepPhone
