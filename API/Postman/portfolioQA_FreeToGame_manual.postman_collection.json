@@ -212,27 +212,27 @@
     {
       "key": "category",
       "value": "",
-      "description": "mmorpg"
+      "description": "\"mmorpg\",\n\"shooter\",\n\"strategy\",\n\"moba\",\n\"racing\",\n\"sports\",\n\"social\",\n\"sandbox\",\n\"open-world\",\n\"survival\",\n\"pvp\",\n\"pve\",\n\"pixel\",\n\"voxel\",\n\"zombie\",\n\"turn-based\",\n\"first-person\",\n\"third-Person\",\n\"top-down\",\n\"tank\",\n\"space\",\n\"sailing\",\n\"side-scroller\",\n\"superhero\",\n\"permadeath\",\n\"card\",\n\"battle-royale\",\n\"mmo\",\n\"mmofps\",\n\"mmotps\",\n\"3d\",\n\"2d\",\n\"anime\",\n\"fantasy\",\n\"sci-fi\",\n\"fighting\",\n\"action-rpg\",\n\"action\",\n\"military\",\n\"martial-arts\",\n\"flight\",\n\"low-spec\",\n\"tower-defense\",\n\"horror\",\n\"mmorts\""
     },
     {
       "key": "platform",
       "value": "",
-      "description": "windows"
+      "description": "\"windows\",\n\"browser\",\n\"all\""
     },
     {
       "key": "game_id",
       "value": "",
-      "description": "312"
+      "description": "unique_number; ex.\"312\""
     },
     {
       "key": "sort",
       "value": "",
-      "description": "popularity"
+      "description": "\"release-date\",\n\"popularity\",\n\"alphabetical\",\n\"relevance\""
     },
     {
       "key": "tag",
       "value": "",
-      "description": "mmorpg.2d"
+      "description": "combination of 1 to 5 categories; ex.\"mmorpg.2d\""
     }
   ]
 }
